@@ -1,0 +1,216 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Product Table</title>
+  <style>
+    body {
+      font-family: Arial;
+      padding: 20px;
+    }
+
+    input {
+      padding: 5px;
+      margin-right: 5px;
+    }
+
+    table {
+      border-collapse: collapse;
+      width: 100%;
+      margin-top: 15px;
+    }
+
+    th, td {
+      border: 1px solid #333;
+      padding: 10px;
+    }
+
+    th {
+      background-color: #f4f4f4;
+    }
+
+    button {
+      margin: 2px;
+      padding: 5px 10px;
+      cursor: pointer;
+    }
+  </style>
+</head>
+<body>
+
+<h2>Product List</h2>
+
+<!-- ADD PRODUCT FORM -->
+<input type="text" id="nameInput" placeholder="Product Name">
+<input type="text" id="priceInput" placeholder="Price">
+<input type="text" id="categoryInput" placeholder="Category">
+<button onclick="addProduct()">Add Product</button>
+
+<br><br>
+
+<button onclick="loadUsingInnerHTML()">Load using innerHTML</button>
+<button onclick="loadUsingDOM()">Load using DOM</button>
+
+<table>
+  <thead>
+    <tr>
+      <th>Product Name</th>
+      <th>Price</th>
+      <th>Category</th>
+      <th>Actions</th>
+    </tr>
+  </thead>
+  <tbody id="tableBody"></tbody>
+</table>
+
+<script>
+  let products = [
+    { name: "Laptop", price: "$800", category: "Electronics" },
+    { name: "Shoes", price: "$50", category: "Fashion" },
+    { name: "Watch", price: "$120", category: "Accessories" },
+    { name: "Phone", price: "$600", category: "Electronics" },
+    { name: "Backpack", price: "$40", category: "Travel" }
+  ];
+
+  const tableBody = document.getElementById("tableBody");
+
+  let currentMethod = "innerHTML";
+
+  // ADD PRODUCT
+  function addProduct() {
+    const name = document.getElementById("nameInput").value;
+    const price = document.getElementById("priceInput").value;
+    const category = document.getElementById("categoryInput").value;
+
+    if (!name || !price || !category) {
+      alert("Please fill all fields!");
+      return;
+    }
+
+    products.push({ name, price, category });
+
+    clearInputs();
+    reloadCurrentMethod();
+  }
+
+  function clearInputs() {
+    document.getElementById("nameInput").value = "";
+    document.getElementById("priceInput").value = "";
+    document.getElementById("categoryInput").value = "";
+  }
+
+  // DELETE
+  function deleteProduct(index) {
+    products.splice(index, 1);
+    reloadCurrentMethod();
+  }
+
+  // EDIT (now uses inputs instead of prompt)
+  function editProduct(index) {
+    const product = products[index];
+
+    document.getElementById("nameInput").value = product.name;
+    document.getElementById("priceInput").value = product.price;
+    document.getElementById("categoryInput").value = product.category;
+
+    // Change add button behavior temporarily
+    const addBtn = document.querySelector("button[onclick='addProduct()']");
+    addBtn.textContent = "Update Product";
+
+    addBtn.onclick = function () {
+      const newName = document.getElementById("nameInput").value;
+      const newPrice = document.getElementById("priceInput").value;
+      const newCategory = document.getElementById("categoryInput").value;
+
+      if (!newName || !newPrice || !newCategory) {
+        alert("Please fill all fields!");
+        return;
+      }
+
+      products[index] = {
+        name: newName,
+        price: newPrice,
+        category: newCategory
+      };
+
+      clearInputs();
+      addBtn.textContent = "Add Product";
+      addBtn.onclick = addProduct;
+
+      reloadCurrentMethod();
+    };
+  }
+
+  function reloadCurrentMethod() {
+    if (currentMethod === "innerHTML") {
+      loadUsingInnerHTML();
+    } else {
+      loadUsingDOM();
+    }
+  }
+
+  // INNER HTML
+  function loadUsingInnerHTML() {
+    currentMethod = "innerHTML";
+
+    let rows = "";
+
+    products.forEach((product, index) => {
+      rows += `
+        <tr>
+          <td>${product.name}</td>
+          <td>${product.price}</td>
+          <td>${product.category}</td>
+          <td>
+            <button onclick="editProduct(${index})">Edit</button>
+            <button onclick="deleteProduct(${index})">Delete</button>
+          </td>
+        </tr>
+      `;
+    });
+
+    tableBody.innerHTML = rows;
+  }
+
+  // DOM METHOD
+  function loadUsingDOM() {
+    currentMethod = "DOM";
+    tableBody.innerHTML = "";
+
+    products.forEach((product, index) => {
+      const tr = document.createElement("tr");
+
+      const nameTd = document.createElement("td");
+      nameTd.textContent = product.name;
+
+      const priceTd = document.createElement("td");
+      priceTd.textContent = product.price;
+
+      const categoryTd = document.createElement("td");
+      categoryTd.textContent = product.category;
+
+      const actionTd = document.createElement("td");
+
+      const editBtn = document.createElement("button");
+      editBtn.textContent = "Edit";
+      editBtn.onclick = () => editProduct(index);
+
+      const deleteBtn = document.createElement("button");
+      deleteBtn.textContent = "Delete";
+      deleteBtn.onclick = () => deleteProduct(index);
+
+      actionTd.appendChild(editBtn);
+      actionTd.appendChild(deleteBtn);
+
+      tr.appendChild(nameTd);
+      tr.appendChild(priceTd);
+      tr.appendChild(categoryTd);
+      tr.appendChild(actionTd);
+
+      tableBody.appendChild(tr);
+    });
+  }
+</script>
+
+</body>
+</html>
