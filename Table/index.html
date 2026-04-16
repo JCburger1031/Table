@@ -50,6 +50,7 @@
 
 <button onclick="loadUsingInnerHTML()">Load using innerHTML</button>
 <button onclick="loadUsingDOM()">Load using DOM</button>
+<button onclick="runPerformanceTest()">Run Performance Test (100 rows)</button>
 
 <table>
   <thead>
@@ -73,8 +74,20 @@
   ];
 
   const tableBody = document.getElementById("tableBody");
-
   let currentMethod = "innerHTML";
+
+  // ✅ GENERATE MANY PRODUCTS
+  function generateManyProducts(count) {
+    let data = [];
+    for (let i = 1; i <= count; i++) {
+      data.push({
+        name: "Product " + i,
+        price: Math.floor(Math.random() * 100),
+        category: "Category " + (i % 5 + 1)
+      });
+    }
+    return data;
+  }
 
   // ADD PRODUCT
   function addProduct() {
@@ -105,7 +118,7 @@
     reloadCurrentMethod();
   }
 
-  // EDIT (now uses inputs instead of prompt)
+  // EDIT
   function editProduct(index) {
     const product = products[index];
 
@@ -113,7 +126,6 @@
     document.getElementById("priceInput").value = product.price;
     document.getElementById("categoryInput").value = product.category;
 
-    // Change add button behavior temporarily
     const addBtn = document.querySelector("button[onclick='addProduct()']");
     addBtn.textContent = "Update Product";
 
@@ -149,7 +161,7 @@
     }
   }
 
-  // INNER HTML
+  // INNER HTML METHOD (⚠️ unsafe)
   function loadUsingInnerHTML() {
     currentMethod = "innerHTML";
 
@@ -172,7 +184,7 @@
     tableBody.innerHTML = rows;
   }
 
-  // DOM METHOD
+  // DOM METHOD (✅ safe)
   function loadUsingDOM() {
     currentMethod = "DOM";
     tableBody.innerHTML = "";
@@ -209,6 +221,23 @@
 
       tableBody.appendChild(tr);
     });
+  }
+
+  // ✅ PERFORMANCE TEST
+  function runPerformanceTest() {
+    products = generateManyProducts(100);
+
+    console.clear();
+
+    console.time("innerHTML");
+    loadUsingInnerHTML();
+    console.timeEnd("innerHTML");
+
+    console.time("DOM");
+    loadUsingDOM();
+    console.timeEnd("DOM");
+
+    console.log("Check results above ↑");
   }
 </script>
 
